@@ -8,12 +8,14 @@
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "OnlineSubsystem.h"
+#include "OnlineSessionSettings.h"
 
 
 //////////////////////////////////////////////////////////////////////////
 // ASpringGameCharacter
 
-ASpringGameCharacter::ASpringGameCharacter()
+ASpringGameCharacter::ASpringGameCharacter():
+	CreateSessionCompleteDelegate(FOnCreateSessionCompleteDelegate::CreateUObject(this,&ThisClass::OnCreateSessionComplete))
 {
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
@@ -55,7 +57,7 @@ ASpringGameCharacter::ASpringGameCharacter()
 	IOnlineSubsystem* OnlineSubsystem = IOnlineSubsystem::Get();
 	if (OnlineSubsystem)
 	{
-		OnlineSessionPtr = OnlineSubsystem->GetSessionInterface();
+		OnlineSessionInterface = OnlineSubsystem->GetSessionInterface();
 		if(GEngine)
 		{
 			GEngine->AddOnScreenDebugMessage(
@@ -96,6 +98,45 @@ void ASpringGameCharacter::SetupPlayerInputComponent(class UInputComponent* Play
 void ASpringGameCharacter::CreateGameSession()
 {
 	//Call When 1 key pressed
+	if (!OnlineSessionInterface.IsValid()) return;
+	auto ExittingSession = OnlineSessionInterface->GetNamedSession(NAME_GameSession);
+	if (ExittingSession != nullptr)
+	{
+		OnlineSessionInterface->DestroySession(NAME_GameSession);
+	}
+	OnlineSessionInterface->AddOnCreateSessionCompleteDelegate_Handle(CreateSessionCompleteDelegate);
+	TSharedPtr<FOnlineSessionSettings> SessionSettings = MakeShareable(new FOnlineSessionSettings);
+	SessionSettings->bIsLANMatch = false;
+	ULocalPlayer* LocalPlayer = GetWorld()->GetFirstLocalPlayerFromController();
+	OnlineSessionInterface->CreateSession(*LocalPlayer->GetPreferredUniqueNetId(),NAME_GameSession,*SessionSettings);
+}
+
+void ASpringGameCharacter::OnCreateSessionComplete(FName SessionName, bool bSuccess)
+{
+	if (bSuccess)
+	{
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(
+				-1,
+				15.f,
+				FColor::Blue,
+				FString::Printf(TEXT("Create Success , SessionName : %s"), *SessionName.ToString())
+			);
+		}
+	}
+	else
+	{
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(
+				-1,
+				15.f,
+				FColor::Red,
+				"CreateFailed"
+			);
+		}
+	}
 }
 
 void ASpringGameCharacter::TouchStarted(ETouchIndex::Type FingerIndex, FVector Location)

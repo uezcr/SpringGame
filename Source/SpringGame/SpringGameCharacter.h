@@ -64,11 +64,13 @@ public:
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 public:
-	IOnlineSessionPtr OnlineSessionPtr;
+	IOnlineSessionPtr OnlineSessionInterface;
+	
 
 protected:
+	UFUNCTION(BluePrintCallable)
 	void CreateGameSession();
-
+	void OnCreateSessionComplete(FName SessionName, bool bSuccess);
 private:
 	FOnCreateSessionCompleteDelegate CreateSessionCompleteDelegate;
 };
