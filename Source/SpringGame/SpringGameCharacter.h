@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Interfaces/OnlineSessionInterface.h"
-#include "Interfaces/OnlineSessionInterface.h"
 #include "SpringGameCharacter.generated.h"
 
 UCLASS(config=Game)
@@ -70,8 +69,14 @@ public:
 protected:
 	UFUNCTION(BluePrintCallable)
 	void CreateGameSession();
+	UFUNCTION(BluePrintCallable)
+	void JoinGameSession();
 	void OnCreateSessionComplete(FName SessionName, bool bSuccess);
+	void OnFindSessionsComplete(bool bWasSuccess);
+
 private:
 	FOnCreateSessionCompleteDelegate CreateSessionCompleteDelegate;
+	FOnFindSessionsCompleteDelegate OnFindSessionsCompleteDelegate;
+	TSharedPtr<FOnlineSessionSearch> SessionSearch;
 };
 
