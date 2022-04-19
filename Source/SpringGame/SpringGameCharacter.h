@@ -73,7 +73,7 @@ protected:
 	void JoinGameSession();
 	void OnCreateSessionComplete(FName SessionName, bool bSuccess);
 	void OnFindSessionsComplete(bool bWasSuccess);
-	void OnjoinSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type Result);
+	void OnJoinSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type Result);
 
 private:
 	FOnCreateSessionCompleteDelegate CreateSessionCompleteDelegate;
