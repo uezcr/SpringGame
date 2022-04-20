@@ -5,8 +5,10 @@
 #include "Components/Button.h"
 #include "OnlineSessionsSubsystem.h"
 
-void UOnlineSessionMenu::MenuSetup()
+void UOnlineSessionMenu::MenuSetup(int32 NumberofPublicConnections, FString TypeOfMatch)
 {
+	NumPublicConnections = NumberofPublicConnections;
+	MatchType = TypeOfMatch;
 	AddToViewport();
 	SetVisibility(ESlateVisibility::Visible);
 	bIsFocusable = true;
@@ -47,14 +49,42 @@ bool UOnlineSessionMenu::Initialize()
 	return true;
 }
 
+void UOnlineSessionMenu::OnLevelRemovedFromWorld(ULevel* InLevel, UWorld* InWorld)
+{
+	MenuTearDown();
+	Super::OnLevelRemovedFromWorld(InLevel,InWorld);
+}
+
 void UOnlineSessionMenu::HostButtonOnClicked()
 {
 	if (OnlineSessionsSubsystem)
 	{
-		OnlineSessionsSubsystem->CreateSession(4, FString("FreeForAll"));
+		OnlineSessionsSubsystem->CreateSession(NumPublicConnections, MatchType);
+	}
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		World->ServerTravel("/Game/GameMaps/Lobby?listen");
 	}
 }
 
 void UOnlineSessionMenu::JoinButtonOnClicked()
 {
+}
+
+void UOnlineSessionMenu::MenuTearDown()
+{
+	RemoveFromParent();
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		APlayerController* PlayerController = World->GetFirstPlayerController();
+		if (PlayerController)
+		{
+			FInputModeGameOnly InputModeData;
+			PlayerController->SetInputMode(InputModeData);
+			PlayerController->SetShowMouseCursor(false);
+		}
+	}
+
 }

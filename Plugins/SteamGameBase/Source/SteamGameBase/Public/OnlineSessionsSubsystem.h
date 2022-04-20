@@ -11,7 +11,7 @@
  * 
  */
 UCLASS()
-class STEAMGAMEBASE_API UOnlineSessionsSubsystem : public UGameInstanceSubsystem
+class STEAMGAMEBASE_API UOnlineSessionsSubsystem  : public UGameInstanceSubsystem
 {
 	GENERATED_BODY()
 public:
@@ -38,6 +38,7 @@ protected:
 
 private:
 	IOnlineSessionPtr SessionInterface;
+	TSharedPtr<FOnlineSessionSettings> LastSessionSettings;
 	//
 	//Delegates
 	//
