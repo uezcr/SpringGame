@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "Interfaces/OnlineSessionInterface.h"
 #include "OnlineSessionMenu.generated.h"
 
 /**
@@ -15,11 +16,21 @@ class STEAMGAMEBASE_API UOnlineSessionMenu : public UUserWidget
 	GENERATED_BODY()
 public:
 	UFUNCTION(BlueprintCallable)
-	void MenuSetup(int32 NumberofPublicConnections = 4,FString TypeOfMatch = FString(TEXT("FreeForAll")));
+	void MenuSetup(int32 NumberofPublicConnections = 4,FString TypeOfMatch = FString(TEXT("FreeForAll")),FString LobbyPath = FString(TEXT("/Game/GameMaps/Lobby?listen")));
 protected:
 	virtual bool Initialize() override;
 	virtual void OnLevelRemovedFromWorld(ULevel* InLevel, UWorld* InWorld) override;
-	
+	//
+	//Callbacks
+	//
+	UFUNCTION()
+	void OnCreateSessionComplete(bool bWasSuccessful);
+	void OnFindSessionComplete(const TArray<FOnlineSessionSearchResult>& SessionResults, bool bWasSuccessful);
+	void OnJoinSessionComplete(EOnJoinSessionCompleteResult::Type Result);
+	UFUNCTION()
+	void OnDestroySessionComplete(bool bWasSuccessful);
+	UFUNCTION()
+	void OnStartSessionComplete(bool bWasSuccessful);
 private:
 	UPROPERTY(meta = (BindWidget))
 	class UButton* HostButton;
@@ -38,4 +49,5 @@ private:
 
 	int32 NumPublicConnections{4};
 	FString MatchType{ TEXT("FreeForAll") };
+	FString PathToLobby{TEXT("")};
 };

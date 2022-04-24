@@ -10,6 +10,16 @@
 /**
  * 
  */
+
+//
+//Delegates
+//
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSpringOnCreateSessionComplete, bool, bWasSuccessful);
+DECLARE_MULTICAST_DELEGATE_TwoParams(FSpringOnFindSessionComplete, const TArray<FOnlineSessionSearchResult>& SessionResults, bool bWasSuccessful);
+DECLARE_MULTICAST_DELEGATE_OneParam(FSpringOnJoinSessionComplete,EOnJoinSessionCompleteResult::Type Result);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSpringOnDestroySessionComplete, bool, bWasSuccessful);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSpringOnStartSessionComplete, bool, bWasSuccessful);
+
 UCLASS()
 class STEAMGAMEBASE_API UOnlineSessionsSubsystem  : public UGameInstanceSubsystem
 {
@@ -26,6 +36,12 @@ public:
 	void DestroySession();
 	void StartSession();
 
+	FSpringOnCreateSessionComplete SpringOnCreateSessionComplete;
+	FSpringOnFindSessionComplete SpringOnFindSessionComplete;
+	FSpringOnJoinSessionComplete SpringOnJoinSessionComplete;
+	FSpringOnDestroySessionComplete SpringOnDestroySessionComplete;
+	FSpringOnStartSessionComplete SpringOnStartSessionComplete;
+
 protected:
 	//
 	//Callbacks
@@ -39,6 +55,7 @@ protected:
 private:
 	IOnlineSessionPtr SessionInterface;
 	TSharedPtr<FOnlineSessionSettings> LastSessionSettings;
+	TSharedPtr<FOnlineSessionSearch> LastSessionSearch;
 	//
 	//Delegates
 	//
@@ -52,4 +69,8 @@ private:
 	FDelegateHandle OnDestroySessionCompleteDelegateHandle;
 	FOnStartSessionCompleteDelegate OnStartSessionCompleteDelegate;
 	FDelegateHandle OnStartSessionCompleteDelegateHandle;
+
+	bool bCreateSessionOnDestroy{ false };
+	int32 LastNumPublicConnections;
+	FString LastMatchType;
 };
